@@ -3,11 +3,12 @@ from typing import List
 from app.repositories.library_repo import LibraryRepository
 from app.schemas.search import SearchRequest, SearchResult
 from app.models.chunk import Chunk
+from app.indexing.manager import VectorIndexManager
 from numpy import dot
 from numpy.linalg import norm
 import numpy as np
 
-
+index_manager = VectorIndexManager()
 class SearchController:
     def __init__(self, library_repo: LibraryRepository):
         self.library_repo = library_repo
@@ -18,31 +19,24 @@ class SearchController:
         if not library:
             raise ValueError("Library not found")
 
-        all_chunks: List[Chunk] = []
+        raw_results = index_manager.search(
+            library_id=request.library_id,
+            query_vector=request.query_embedding,
+            top_k=request.top_k,
+            filters=request.filters
+        )
 
-        for doc in library.documents:
-            for chunk in doc.chunks:
-                all_chunks.append((doc.id, chunk))
+        results: List[SearchResult] = [
+            SearchResult(
+                chunk_id=chunk_id,
+                document_id=None,
+                text=metadata.get("text", ""),
+                score=round(score, 4)
+            )
+            for chunk_id, score, metadata in raw_results
+        ]
 
-        filtered = self._apply_filters(all_chunks, request)
-
-        results = []
-        query_vec = np.array(request.query_embedding)
-
-        for doc_id, chunk in filtered:
-            chunk_vec = np.array(chunk.embedding)
-            if norm(chunk_vec) == 0 or norm(query_vec) == 0:
-                continue
-            score = dot(query_vec, chunk_vec) / (norm(query_vec) * norm(chunk_vec))
-            results.append(SearchResult(
-                chunk_id=chunk.id,
-                document_id=doc_id,
-                text=chunk.text,
-                score=round(float(score), 4)
-            ))
-
-        results.sort(key=lambda r: r.score, reverse=True)
-        return results[:request.top_k]
+        return results
 
     def _apply_filters(self, chunks: List[tuple], request: SearchRequest) -> List[tuple]:
         if not request.filters:

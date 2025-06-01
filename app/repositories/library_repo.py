@@ -24,7 +24,6 @@ class LibraryRepository:
 
         self._persistence.load()
 
-    # ------------------- Library Operations -------------------
     def create_library(self, library: Library):
         self._library_store.add(library)
         self.save()
@@ -36,10 +35,13 @@ class LibraryRepository:
         self._library_store.delete(library_id)
         self.save()
 
+    def update_library(self, library: Library):
+        self._library_store.update(library)
+        self.save()
+        
     def list_libraries(self) -> Dict[str, Library]:
         return self._library_store.list()
 
-    # ------------------- Document Operations -------------------
     def add_document(self, library_id: UUID, document: Document):
         self._document_store.add(library_id, document)
         self.save()
@@ -47,10 +49,16 @@ class LibraryRepository:
     def get_document(self, library_id: UUID, document_id: UUID) -> Document:
         return self._document_store.get(library_id, document_id)
 
-    # ------------------- Chunk Operations -------------------
     def add_chunk(self, library_id: UUID, document_id: UUID, chunk: Chunk):
         self._chunk_store.add(library_id, document_id, chunk)
         self.save()
 
+    def get_chunk(self, library_id: UUID, document_id: UUID, chunk_id: UUID) -> Chunk:
+        return self._chunk_store.get(library_id, document_id, chunk_id)
+    
+    def update_chunk(self, library_id: UUID, document_id: UUID, chunk: Chunk):
+        self._chunk_store.update(library_id, document_id, chunk)
+        self.save()
+        
     def save(self):
         self._persistence.save()

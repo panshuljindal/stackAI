@@ -28,6 +28,13 @@ class LibraryStore:
             if key not in self.store:
                 raise ValueError("Library not found")
             del self.store[key]
+            
+    def update(self, library: Library):
+        with self.lock:
+            key = str(library.id)
+            if key not in self.store:
+                raise ValueError("Library not found")
+            self.store[key] = library
 
     def list(self) -> Dict[str, Library]:
         with self.lock:

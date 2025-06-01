@@ -3,7 +3,9 @@ from typing import Dict
 from app.models.document import Document
 from app.models.chunk import Chunk
 from app.repositories.library_repo import LibraryRepository
+from app.indexing.manager import VectorIndexManager
 
+index_manager = VectorIndexManager()
 class DocumentController:
     def __init__(self, repo: LibraryRepository):
         self.repo = repo
@@ -27,6 +29,19 @@ class DocumentController:
             metadata = chunk_data.get("metadata", {})
         )
         self.repo.add_chunk(library_id, document_id, chunk)
+        index_manager.add(library_id, chunk.id, chunk.embedding, chunk.metadata)
+        return chunk
+    
+    def update_chunk(self, library_id: UUID, document_id: UUID, chunk_id: UUID, chunk_data: Dict):
+        chunk = self.repo.get_chunk(library_id, document_id, chunk_id)
+        if not chunk:
+            raise ValueError("Chunk not found")
+
+        chunk.text = chunk_data.get("text", chunk.text)
+        chunk.embedding = chunk_data.get("embedding", chunk.embedding)
+        chunk.metadata = chunk_data.get("metadata", chunk.metadata)
+
+        self.repo.update_chunk(library_id, document_id, chunk)
         return chunk
     
     def delete_chunk(self, library_id: UUID, document_id: UUID, chunk_id: UUID):
@@ -43,4 +58,4 @@ class DocumentController:
             raise ValueError("Chunk not found")
 
         del document.chunks[chunk_index]
-        self.library_repo.save_to_disk()
+        self.repo.save_to_disk()

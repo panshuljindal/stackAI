@@ -31,7 +31,7 @@ def get_document(document_id: UUID, library_id: UUID = Query(...), controller: D
         return sendResponse(status.HTTP_404_NOT_FOUND, str(e))
 
 
-@router.post("/{document_id}/chunks", response_model=ChunkResponse)
+@router.post("/{document_id}/addChunk", response_model=ChunkResponse)
 def add_chunk(library_id: UUID, document_id: UUID, payload: ChunkCreate, controller: DocumentController = Depends(get_document_controller)):
     
     try:
@@ -41,12 +41,22 @@ def add_chunk(library_id: UUID, document_id: UUID, payload: ChunkCreate, control
     except ValueError as e:
         return sendResponse(status.HTTP_400_BAD_REQUEST, str(e))
     
-
-def delete_chunk(document_id: UUID, chunk_id: UUID, library_id: UUID = Query(...), controller: DocumentController = Depends(get_document_controller)):
+@router.put("/{document_id}/updateChunk/{chunk_id}", response_model=ChunkResponse)
+def update_chunk(document_id: UUID, chunk_id: UUID, payload: ChunkCreate, library_id: UUID = Query(...), controller: DocumentController = Depends(get_document_controller)):
+    try:
+        updated_chunk = controller.update_chunk(library_id, document_id, chunk_id, payload.dict())
+        return sendResponse(status.HTTP_200_OK, "Chunk updated", updated_chunk.dict())
     
+    except ValueError as e:
+        return sendResponse(status.HTTP_404_NOT_FOUND, str(e))
+
+@router.delete("/{document_id}/deleteChunk/{chunk_id}")
+def delete_chunk(document_id: UUID, chunk_id: UUID, library_id: UUID = Query(...), controller: DocumentController = Depends(get_document_controller)):
     try:
         controller.delete_chunk(library_id, document_id, chunk_id)
         return sendResponse(status.HTTP_200_OK, "Chunk deleted", None)
     
     except ValueError as e:
         return sendResponse(status.HTTP_404_NOT_FOUND, str(e))
+    
+

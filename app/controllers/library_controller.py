@@ -22,3 +22,13 @@ class LibraryController:
 
     def list_libraries(self) -> List[Library]:
         return list(self.repo.list_libraries().values())
+
+    def update_library(self, library_id: UUID, name: str, metadata: Dict[str, str]) -> Library:
+        library = self.repo.get_library(library_id)
+        if not library:
+            raise ValueError("Library not found")
+        
+        library.name = name
+        library.metadata = metadata
+        self.repo.update_library(library)
+        return library
