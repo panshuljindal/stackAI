@@ -1,0 +1,35 @@
+{
+  "05b9ab7a-9efb-4327-99cb-5919bb44c100": {
+    "id": "05b9ab7a-9efb-4327-99cb-5919bb44c100",
+    "name": "Test Library",
+    "metadata": {
+      "owner": "test"
+    },
+    "documents": [
+      {
+        "id": "1da2b58d-b6f6-402e-bcda-128e7cfe6718",
+        "name": "Doc 1",
+        "metadata": {
+          "type": "test"
+        },
+        "chunks": [
+          {
+            "id": "09cd6e3a-3289-4ae4-83ee-71f1f7967ebb",
+            "text": "Hello world",
+            "embedding": [
+              0.1,
+              0.2,
+              0.3
+            ],
+            "metadata": {
+              "source": "manual"
+            },
+            "created_at": "2025-06-01T18:04:33.226599"
+          }
+        ],
+        "created_at": "2025-06-01T18:04:33.226450"
+      }
+    ],
+    "created_at": "2025-06-01T18:04:33.225910"
+  }
+}
