@@ -32,10 +32,10 @@ def get_document(document_id: UUID, library_id: UUID = Query(...), controller: D
 
 
 @router.post("/{document_id}/addChunk", response_model=ChunkResponse)
-def add_chunk(library_id: UUID, document_id: UUID, payload: ChunkCreate, controller: DocumentController = Depends(get_document_controller)):
+def add_chunk(payload: ChunkCreate, controller: DocumentController = Depends(get_document_controller)):
     
     try:
-        chunk = controller.add_chunk(library_id, document_id, payload.dict())
+        chunk = controller.add_chunk(payload.library_id, payload.document_id, payload.dict())
         return sendResponse(status.HTTP_201_CREATED, "Chunk added to document", chunk.dict())
     
     except ValueError as e:

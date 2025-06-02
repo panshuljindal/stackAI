@@ -10,10 +10,7 @@ def get_search_controller() -> SearchController:
     return SearchController(LibraryRepository())
 
 @router.post("/", response_model=list[SearchResult])
-def search_chunks(
-    request: SearchRequest,
-    controller: SearchController = Depends(get_search_controller)
-):
+def search_chunks(request: SearchRequest, controller: SearchController = Depends(get_search_controller)):
     try:
         results = controller.search(request)
         return sendResponse(

@@ -14,7 +14,7 @@ class SearchController:
         self.library_repo = library_repo
 
     def search(self, request: SearchRequest) -> List[SearchResult]:
-        library = self.library_repo.get(str(request.library_id))
+        library = self.library_repo.get_library(str(request.library_id))
 
         if not library:
             raise ValueError("Library not found")
